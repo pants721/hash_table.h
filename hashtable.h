@@ -1,4 +1,4 @@
-// -*- C -*-
+// -*- C++ -*-
 //
 // LICENSE:
 //  The MIT License (MIT)
