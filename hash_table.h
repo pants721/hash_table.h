@@ -28,11 +28,11 @@
 //
 
 // =============================================================================
-// HASHTABLE PUBLIC API
+// HASH_TABLE PUBLIC API
 // =============================================================================
 
-#ifndef HASHTABLE_H
-#define HASHTABLE_H
+#ifndef HASH_TABLE_H
+#define HASH_TABLE_H
 
 #include <assert.h>
 #include <stdbool.h>
@@ -84,14 +84,14 @@ typedef struct {
 hashtable_iterator hashtable_create_iterator(HashTable *table);
 bool hashtable_next(hashtable_iterator *iter);
 
-#endif // HASHTABLE_H
+#endif // HASH_TABLE_H
 
 // =============================================================================
 // Implementation
 // =============================================================================
 
-#ifndef HASHTABLE_IMPLEMENTATION
-#define HASHTABLE_IMPLEMENTATION
+#ifndef HASH_TABLE_IMPLEMENTATION
+#define HASH_TABLE_IMPLEMENTATION
 
 // Source: http://www.cse.yorku.ca/~oz/hash.html
 static u_int64_t djb2_hash(const char *key) {
@@ -273,4 +273,4 @@ bool hashtable_next(hashtable_iterator *it) {
     return false;
 }
 
-#endif // HASHTABLE_IMPLEMENTATION
+#endif // HASH_TABLE_IMPLEMENTATION
