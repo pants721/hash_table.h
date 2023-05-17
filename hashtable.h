@@ -11,8 +11,20 @@
 //  http://www.cse.yorku.ca/~oz/hash.html
 //
 // HOWTO:
-//  #define HASHTABLE_IMPLEMENTATION
+//
 //  #include "hashtable.h"
+//  
+//  HashTable *table = hashtable_create();
+//  
+//  // Set values
+//  hashtable_set(table, "mia", "the best");
+//  hashtable_set(table, "federer", 1);
+//  hashtable_set(table, "djokovic", 2);
+//  hashtable_set(table, "fav letter", 'm');
+//  
+//  // Get values
+//  hashtable_get(table, "mia") // returns "the best"
+//  hashtable_get(table, "federer") // returns 1
 //
 
 // =============================================================================
@@ -33,11 +45,11 @@
 // Globals
 #define INITIAL_CAPACITY 16
 
-// Hashtable hashtable_Entry
+// Hashtable HashTableEntry
 typedef struct {
     const char *key;
     void *value;
-} hashtable_Entry;
+} HashTableEntry;
 
 // Hashtable struct
 typedef struct {
@@ -45,7 +57,7 @@ typedef struct {
     size_t length;   // ^
 
     // Private
-    hashtable_Entry *_entries;
+    HashTableEntry *_entries;
 } HashTable;
 
 // Create hash table
@@ -78,7 +90,8 @@ bool hashtable_next(hashtable_iterator *iter);
 // Implementation
 // =============================================================================
 
-#ifdef HASHTABLE_IMPLEMENTATION
+#ifndef HASHTABLE_IMPLEMENTATION
+#define HASHTABLE_IMPLEMENTATION
 
 // Source: http://www.cse.yorku.ca/~oz/hash.html
 static u_int64_t djb2_hash(const char *key) {
@@ -92,14 +105,14 @@ static u_int64_t djb2_hash(const char *key) {
     return hash;
 }
 
-static const char *hashtable_set_entry(hashtable_Entry *entries,
+static const char *hashtable_set_entry(HashTableEntry *entries,
                                        size_t capacity, const char *key,
                                        void *value, size_t *p_length) {
     // AND hash with capacity-1 to ensure it's within entries array.
     u_int64_t hash = djb2_hash(key);
     size_t index = (size_t)(hash & (u_int64_t)(capacity - 1));
 
-    // Loop till we find an empty hashtable_Entry.
+    // Loop till we find an empty HashTableEntry.
     while (entries[index].key != NULL) {
         if (strcmp(key, entries[index].key) != 0) {
             // Found key (it already exists), update value.
@@ -117,16 +130,16 @@ static const char *hashtable_set_entry(hashtable_Entry *entries,
     }
 
     // Reached once index key is empty
-    // Insert hashtable_Entry at index
+    // Insert HashTableEntry at index
     if (p_length != NULL) {
         key = strdup(key);
         if (key == NULL) {
             return NULL;
         }
-        // Increase length because of new hashtable_Entry
+        // Increase length because of new HashTableEntry
         (*p_length)++;
     }
-    // Insert hashtable_Entry
+    // Insert HashTableEntry
     entries[index].key = (char *)key;
     entries[index].value = value;
 
@@ -140,15 +153,15 @@ static bool hashtable_expand(HashTable *table) {
         return false; // size_t overflow
     }
 
-    hashtable_Entry *new_entries = calloc(new_capacity,
-                                          sizeof(hashtable_Entry));
+    HashTableEntry *new_entries = (HashTableEntry *)calloc(new_capacity,
+                                          sizeof(HashTableEntry));
     if (new_entries == NULL) {
         return false;
     }
 
     // Iterate entries, move all non-empty ones to new table's entries.
     for (size_t i = 0; i < table->capacity; i++) {
-        hashtable_Entry entry = table->_entries[i];
+        HashTableEntry entry = table->_entries[i];
         if (entry.key != NULL) {
             hashtable_set_entry(new_entries, new_capacity, entry.key,
                                 entry.value, NULL);
@@ -174,7 +187,7 @@ HashTable *hashtable_create(void) {
     table->length = 0;
     table->capacity = INITIAL_CAPACITY;
 
-    table->_entries = calloc(table->capacity, sizeof(hashtable_Entry));
+    table->_entries = (HashTableEntry *)calloc(table->capacity, sizeof(HashTableEntry));
 
     if (table->_entries == NULL) {
         free(table);
@@ -203,7 +216,7 @@ void *hashtable_get(HashTable *table, const char *key) {
     // Check all non-empty entries at hash
     while (table->_entries[index].key != NULL) {
         if (strcmp(key, table->_entries[index].key) == 0) {
-            // Found hashtable_Entry with matching key, return value
+            // Found HashTableEntry with matching key, return value
             return table->_entries[index].value;
         }
 
@@ -229,7 +242,7 @@ const char *hashtable_set(HashTable *table, const char *key, void *value) {
         }
     }
 
-    // Set hashtable_Entry and update length.
+    // Set HashTableEntry and update length.
     return hashtable_set_entry(table->_entries, table->capacity, key, value,
                                &table->length);
 }
@@ -251,7 +264,7 @@ bool hashtable_next(hashtable_iterator *it) {
         it->_index++;
         if (table->_entries[i].key != NULL) {
             // Found next non-empty item, update iterator key and value.
-            hashtable_Entry entry = table->_entries[i];
+            HashTableEntry entry = table->_entries[i];
             it->key = entry.key;
             it->value = entry.value;
             return true;
