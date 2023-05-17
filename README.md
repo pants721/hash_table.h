@@ -1,4 +1,4 @@
-# hashtable.h
+# hash_table.h
 
 An extremely simple hash table implementation.
 
