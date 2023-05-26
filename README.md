@@ -4,7 +4,6 @@ An extremely simple hash table implementation.
 
 ## Usage
 ```c
-#define HASHTABLE_IMPLEMENTATION
 #include "hashtable.h"
 
 HashTable *table = hashtable_create();
